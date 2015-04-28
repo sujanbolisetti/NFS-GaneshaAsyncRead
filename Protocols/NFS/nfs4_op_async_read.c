@@ -367,6 +367,9 @@ static void* nfs4_aysnc_read(void *asy_args)
  	 printf("done");
 
  	printf("done after");
+ 	while(1){
+
+ 	}
 }
 
 
@@ -374,35 +377,9 @@ static int32_t cbasync_read_completion_func(rpc_call_t *call,
 					   rpc_call_hook hook, void *arg,
 					   uint32_t flags)
 {
-	char *fh;
 	nfs_client_id_t *clid;
 
-	LogDebug(COMPONENT_NFS_CB, "%p %s", call,
-		 (hook ==
-		  RPC_CALL_ABORT) ? "RPC_CALL_ABORT" : "RPC_CALL_COMPLETE");
-	clid = (nfs_client_id_t *)arg;
-	switch (hook) {
-	case RPC_CALL_COMPLETE:
-		/* potentially, do something more interesting here */
-		LogDebug(COMPONENT_NFS_CB, "call result: %d", call->stat);
-		fh = call->cbt.v_u.v4.args.argarray.argarray_val->
-		    nfs_cb_argop4_u.opcbrecall.fh.nfs_fh4_val;
-		/* Mark the channel down if the rpc call failed */
-		/** @todo: what to do about server issues which made the RPC
-		 *         call fail?
-		 */
-		if (call->stat != RPC_SUCCESS) {
-			pthread_mutex_lock(&clid->cid_mutex);
-			clid->cb_chan_down = true;
-			pthread_mutex_unlock(&clid->cid_mutex);
-		}
-		gsh_free(fh);
-		cb_compound_free(&call->cbt);
-		break;
-	default:
-		LogDebug(COMPONENT_NFS_CB, "%p unknown hook %d", call, hook);
-		break;
-	}
+
 	return 0;
 }
 
@@ -418,57 +395,26 @@ int cb_async_read(state_t *state_found,nfs_cb_argop4 *argop){
 
 		code = nfs_client_id_get_confirmed(state_found->state_owner->so_owner.so_nfs4_owner.so_clientid, &clid);
 
-			if (code != CLIENT_ID_SUCCESS) {
-				LogCrit(COMPONENT_NFS_CB, "No clid record  code %d", code);
-			}
+		if (code != CLIENT_ID_SUCCESS) {
+			LogCrit(COMPONENT_NFS_CB, "No clid record  code %d", code);
+		}
 
+		PTHREAD_RWLOCK_wrlock(&state_found->state_entry->state_lock);
 
-			/* Attempt a recall only if channel state is UP */
-				pthread_mutex_lock(&clid->cid_mutex);
-				if (clid->cb_chan_down) {
-					pthread_mutex_unlock(&clid->cid_mutex);
-					LogCrit(COMPONENT_NFS_CB,
-						"Call back channel down, not issuing a recall");
-					return NFS_CB_CALL_ABORTED;
-				}
-				pthread_mutex_unlock(&clid->cid_mutex);
+		code = nfs_rpc_v41_single(clid, argop,
+									     &state_found->state_refer, cbasync_read_completion_func,
+									      clid, NULL);
 
-				chan = nfs_rpc_get_chan(clid, NFS_RPC_FLAG_NONE);
-					if (!chan) {
-						LogCrit(COMPONENT_NFS_CB, "nfs_rpc_get_chan failed");
-						/* TODO: move this to nfs_rpc_get_chan ? */
-						pthread_mutex_lock(&clid->cid_mutex);
-						clid->cb_chan_down = true;
-						pthread_mutex_unlock(&clid->cid_mutex);
-						return NFS_CB_CALL_ABORTED;
-					}
-					if (!chan->clnt) {
-						LogCrit(COMPONENT_NFS_CB, "nfs_rpc_get_chan failed (no clnt)");
-						pthread_mutex_lock(&clid->cid_mutex);
-						clid->cb_chan_down = true;
-						pthread_mutex_unlock(&clid->cid_mutex);
-						return NFS_CB_CALL_ABORTED;
-					}
-					/* allocate a new call--freed in completion hook */
-					call = alloc_rpc_call();
-					call->chan = chan;
-
-					cb_compound_init_v4(&call->cbt, 6, 1,
-								    clid->cid_cb.v40.cb_callback_ident, "testing!!!",
-								    10);
-					/* add ops, till finished (dont exceed count) */
-					cb_compound_add_op(&call->cbt, argop);
-//
-					/* set completion hook  TO DO */
-					call->call_hook = cbasync_read_completion_func;
-					nfs_rpc_submit_call(call, clid, NFS_RPC_FLAG_NONE);
-					return call->states;
+		if(code !=0){
+				printf("RPC call back failed");
+		}
+		else{
+				printf("success");
+		}
+		PTHREAD_RWLOCK_unlock(&state_found->state_entry->state_lock);
+		return code;
 
 }
-
-
-
-
 
 /**
  * @brief The NFS4_OP_READ operation
@@ -517,11 +463,7 @@ int nfs4_op_async_read(struct nfs_argop4 *op, compound_data_t *data,
  */
 void nfs4_op_async_read_Free(nfs_resop4 *res)
 {
-//	ASYNC_READ4res *resp = &res->nfs_resop4_u.opread;
-//
-//	if (resp->status == NFS4_OK)
-//		if (resp->READ4res_u.resok4.data.data_val != NULL)
-//			gsh_free(resp->READ4res_u.resok4.data.data_val);
+
 	return;
 }				/* nfs4_op_read_Free */
 

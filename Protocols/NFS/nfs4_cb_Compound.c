@@ -52,6 +52,21 @@ static const nfs4_cb_tag_t cbtagtab4[] = {
 	{NFS4_CB_TAG_DEFAULT, "Ganesha CB Compound", 19},
 };
 
+static const struct nfs4_op_cb_desc opcbtabv4[] = {
+	[NFS4_OP_CB_ASYNC_READ] = {
+			.name = "OP_CB_ASYNC_READ",
+			.funct = nfs4_op_async_read,
+			.free_res = nfs4_op_async_read_Free,
+			.exp_perm_flags = 0}
+};
+
+int nfs4_Compound(nfs_arg_t *arg,
+		  nfs_worker_data_t *worker,
+		  struct svc_req *req, nfs_res_t *res){
+
+	nfs4_op_async_read();
+}
+
 /* Some CITI-inspired compound helper ideas */
 
 void cb_compound_init_v4(nfs4_compound_t *cbt, uint32_t n_ops,
