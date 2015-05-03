@@ -325,7 +325,7 @@ int nfs4_op_create_session(struct nfs_argop4 *op, compound_data_t *data,
 	/* Set ca_maxrequests */
 	nfs41_session->fore_channel_attrs.ca_maxrequests = NFS41_NB_SLOTS;
 	nfs41_Build_sessionid(&clientid, nfs41_session->session_id);
-
+	printf("Session id %s",nfs41_session->session_id);
 	res_CREATE_SESSION4ok->csr_sequence = arg_CREATE_SESSION4->csa_sequence;
 
 	/* return the input for wanting of something better (will

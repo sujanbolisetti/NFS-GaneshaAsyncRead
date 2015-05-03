@@ -2678,6 +2678,7 @@ struct ASYNC_READ4args{
 	stateid4    stateid;
 	offset4		offset;
 	count4		count;
+	uint32_t    timeout;
 };
 
 typedef struct ASYNC_READ4args ASYNC_READ4args;

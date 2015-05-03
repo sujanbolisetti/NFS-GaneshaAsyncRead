@@ -959,6 +959,10 @@ void nfs_rpc_enqueue_req(request_data_t *req)
 		else
 			qpair = &(nfs_request_q->qset[REQ_Q_LOW_LATENCY]);
 		break;
+	// Asynchronous read
+	case NFS_CALLBACK:
+			qpair = &(nfs_request_q->qset[REQ_Q_HIGH_LATENCY]);
+			break;
 	case NFS_CALL:
 		qpair = &(nfs_request_q->qset[REQ_Q_CALL]);
 		break;

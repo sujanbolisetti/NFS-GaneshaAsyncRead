@@ -66,12 +66,19 @@ char *host_name;
  */
 #define P_FAMILY AF_INET6
 
+struct callback_request_data {
+	compound_data_t *data;
+	struct req_op_context *arg_op_ctx;
+};
+
 typedef struct nfs_request_data {
 	SVCXPRT *xprt;
 	struct svc_req req;
 	struct nfs_request_lookahead lookahead;
 	nfs_arg_t arg_nfs;
+	nfs_cb_arg_t cb_arg_nfs;
 	nfs_res_t *res_nfs;
+	struct callback_request_data cb_data;
 	const nfs_function_desc_t *funcdesc;
 } nfs_request_data_t;
 
@@ -79,6 +86,9 @@ enum rpc_chan_type {
 	RPC_CHAN_V40,
 	RPC_CHAN_V41
 };
+
+
+
 
 typedef struct rpc_call_channel {
 	enum rpc_chan_type type;
@@ -133,6 +143,7 @@ typedef enum request_type {
 	UNKNOWN_REQUEST,
 	NFS_CALL,
 	NFS_REQUEST,
+	NFS_CALLBACK,
 #ifdef _USE_9P
 	_9P_REQUEST,
 #endif				/* _USE_9P */

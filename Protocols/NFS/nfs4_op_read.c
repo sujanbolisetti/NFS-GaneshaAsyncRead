@@ -505,6 +505,8 @@ static int nfs4_read(struct nfs_argop4 *op, compound_data_t *data,
 
 //	LogFullDebug(COMPONENT_NFS_V4,
 //					     "Sujan Read Client Id = %s",data->preserved_clientid.cid_clientid);
+
+
 	return res_READ4->status;
 }				/* nfs4_op_read */
 

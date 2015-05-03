@@ -47,6 +47,8 @@ struct nfs4_op_desc {
 	int exp_perm_flags;
 };
 
+
+
 /**
  * @brief  NFSv4 and 4.1 ops table.
  * indexed by opcode
@@ -685,10 +687,12 @@ int nfs4_Compound(nfs_arg_t *arg,
 						  &data,
 						  &resarray[i]);
 
+
+
 		LogCompoundFH(&data);
 
 		LogDebug(COMPONENT_NFS_V4,
-						 "Sujan of %s harsha %d = %s",
+						 "Opcode of %s  index %d = %s",
 						 optabv4[opcode].name, i,
 						 nfsstat4_to_str(status));
 

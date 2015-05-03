@@ -1452,6 +1452,7 @@ static void worker_thread_finalizer(struct fridgethr_context *ctx)
 	ctx->thread_info = NULL;
 }
 
+
 /**
  * @brief The main function for a worker thread
  *
@@ -1488,6 +1489,7 @@ static void worker_run(struct fridgethr_context *ctx)
 			break;
 		case NFS_REQUEST:
 			/* check for destroyed xprts */
+
 			xu = (gsh_xprt_private_t *) nfsreq->r_u.nfs->xprt->
 			    xp_u1;
 			pthread_mutex_lock(&nfsreq->r_u.nfs->xprt->xp_lock);
@@ -1506,6 +1508,9 @@ static void worker_run(struct fridgethr_context *ctx)
 			nfs_rpc_execute(nfsreq, worker_data);
 			break;
 
+		case NFS_CALLBACK:
+			nfs_handle_cb_compound(nfsreq);
+			break;
 		case NFS_CALL:
 			/* NFSv4 rpc call (callback) */
 			nfs_rpc_dispatch_call(nfsreq->r_u.call, 0);

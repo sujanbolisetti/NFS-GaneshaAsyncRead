@@ -1307,7 +1307,7 @@ int nfs_rpc_v41_single(nfs_client_id_t *clientid, nfs_cb_argop4 *op,
 			call->call_hook = completion;
 			code =
 			    nfs_rpc_submit_call(call, completion_arg,
-						NFS_RPC_FLAG_NONE);
+			    		NFS_RPC_CALL_INLINE);
 			if (code != 0) {
 				/* Clean up... */
 				free_single_call(call);

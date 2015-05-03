@@ -52,19 +52,35 @@ static const nfs4_cb_tag_t cbtagtab4[] = {
 	{NFS4_CB_TAG_DEFAULT, "Ganesha CB Compound", 19},
 };
 
-static const struct nfs4_op_cb_desc opcbtabv4[] = {
-	[NFS4_OP_CB_ASYNC_READ] = {
-			.name = "OP_CB_ASYNC_READ",
-			.funct = nfs4_op_async_read,
-			.free_res = nfs4_op_async_read_Free,
-			.exp_perm_flags = 0}
+struct nfs4_op_cb_desc {
+	char *name;
+	int (*funct) (struct nfs_argop4 *, compound_data_t *,
+			struct req_op_context *);
+	int exp_perm_flags;
 };
 
-int nfs4_Compound(nfs_arg_t *arg,
-		  nfs_worker_data_t *worker,
-		  struct svc_req *req, nfs_res_t *res){
+static const struct nfs4_op_cb_desc opcbtabv4[] = {
+	[NFS4_OP_CB_ASYNC_READ] = {
+				.name = "OP_CB_ASYNC_READ",
+				.funct = nfs4_aysnc_read,
+				.exp_perm_flags = 0
+		}
+};
 
-	nfs4_op_async_read();
+
+int nfs_handle_cb_compound(request_data_t *nfsreq){
+	int opcode = nfsreq->r_u.nfs->cb_arg_nfs.cb_arg_compound.argarray.argarray_val->argop;
+	printf("opcode %d",opcode);
+	int status;
+
+	status = (opcbtabv4[opcode].funct) (nfsreq->r_u.nfs->arg_nfs.arg_compound4.argarray.argarray_val,
+						nfsreq->r_u.nfs->cb_data.data,nfsreq->r_u.nfs->cb_data.arg_op_ctx);
+
+//	nfs4_aysnc_read(nfsreq->r_u.nfs->arg_nfs.arg_compound4.argarray.argarray_val,
+//								nfsreq->r_u.nfs->cb_data.data,nfsreq->r_u.nfs->cb_data.arg_op_ctx);
+
+	return 0;
+
 }
 
 /* Some CITI-inspired compound helper ideas */

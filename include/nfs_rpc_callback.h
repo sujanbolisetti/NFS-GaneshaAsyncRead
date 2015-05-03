@@ -64,6 +64,8 @@ void cb_compound_init_v4(nfs4_compound_t *cbt, uint32_t n_ops,
 
 void cb_compound_add_op(nfs4_compound_t *cbt, nfs_cb_argop4 *src);
 
+int nfs_handle_cb_compound(request_data_t *nfsreq);
+
 void cb_compound_free(nfs4_compound_t *cbt);
 
 #define NFS_CB_FLAG_NONE 0x0000

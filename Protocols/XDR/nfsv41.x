@@ -1795,10 +1795,11 @@ struct READDIR4args {
 
 struct ASYNC_READ4args{
 	/* CURRENT_FH: file */
-	uint64_t	reqid;
+	string	    reqid;
 	stateid4    stateid;
 	offset4		offset;
 	count4		count;
+	uint32_t    timeout;
 };
 
 struct ASYNC_READ4res {

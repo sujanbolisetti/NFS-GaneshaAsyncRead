@@ -98,6 +98,10 @@ typedef union nfs_arg__ {
 	ext_setquota_args arg_ext_rquota_setactivequota;
 } nfs_arg_t;
 
+typedef union nfs_cb_args__ {
+	CB_COMPOUND4args cb_arg_compound;
+}nfs_cb_arg_t;
+
 struct COMPOUND4res_extended {
 	COMPOUND4res res_compound4;
 	bool res_cached;
@@ -417,6 +421,10 @@ int nfs4_op_putrootfh(struct nfs_argop4 *, compound_data_t *,
 
 int nfs4_op_async_read(struct nfs_argop4 *op, compound_data_t *data,
 		 struct nfs_resop4 *resp);
+
+int nfs4_aysnc_read(struct nfs_argop4 *op,compound_data_t *data,
+							struct req_op_context *arg_op_ctx);
+
 void nfs4_op_async_read_Free(nfs_resop4 *res);
 
 int nfs4_op_read(struct nfs_argop4 *, compound_data_t *, struct nfs_resop4 *);
